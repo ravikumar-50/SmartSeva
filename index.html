@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartSeva - Smart Digital Queue System">
+    <title>SmartSeva - Digital Queue System</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/screens.css">
+
+    <!-- QR Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #7F8C8D;
+        }
+
+        #qr-reader {
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .option-buttons {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        #qr-file-input {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Welcome Screen -->
+    <section id="welcome-screen" class="screen active">
+        <div class="container">
+            <div class="welcome-content">
+                <div class="welcome-header">
+                    <h1 class="welcome-location">SmartSeva</h1>
+                    <p class="welcome-subtitle">Smart Digital Queue & Token System</p>
+                    <p style="color: #7F8C8D; margin-top: 0.5rem; font-size: 0.95rem;">
+                        For Hospitals • Banks • Government Offices • Service Centers
+                    </p>
+                </div>
+
+                <div class="welcome-hero">
+                    <img src="assets/images/welcome-illustration.png"
+                        alt="People waiting comfortably instead of standing in line">
+                </div>
+
+                <div class="welcome-actions">
+                    <button id="take-token-btn" class="btn btn-primary btn-lg btn-block mb-md">
+                        🎟️ Take a Token
+                    </button>
+                    <a href="help.html" class="btn btn-secondary btn-lg btn-block">
+                        ❓ How it Works
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Token Method Modal -->
+    <div id="token-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 style="margin-bottom: 1.5rem; text-align: center;">Choose Token Method</h2>
+
+            <div class="option-buttons">
+                <button id="scan-qr-btn" class="btn btn-primary btn-lg btn-block">
+                    📱 Scan QR Code
+                </button>
+                <a href="registration.html" class="btn btn-secondary btn-lg btn-block">
+                    ✏️ Manual Entry
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Method Selection Modal -->
+    <div id="qr-method-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeQRMethodModal()">&times;</button>
+            <h2 style="margin-bottom: 1rem; text-align: center;">How to Scan QR?</h2>
+            <p style="text-align: center; color: #7F8C8D; margin-bottom: 1.5rem;">Choose your preferred scanning method
+            </p>
+
+            <div class="option-buttons">
+                <button id="camera-scan-btn" class="btn btn-primary btn-lg btn-block">
+                    📷 Use Camera
+                </button>
+                <button id="gallery-scan-btn" class="btn btn-secondary btn-lg btn-block">
+                    🖼️ Upload from Gallery
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Modal -->
+    <div id="qr-scanner-modal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeScanner()">&times;</button>
+            <h2 style="margin-bottom: 1rem; text-align: center;" id="scanner-title">Scan QR Code</h2>
+            <p style="text-align: center; color: #7F8C8D; margin-bottom: 1rem;" id="scanner-subtitle">Point your camera
+                at the facility's QR code</p>
+
+            <div id="qr-reader"></div>
+            <input type="file" id="qr-file-input" accept="image/*">
+
+            <button onclick="closeScanner()" class="btn btn-secondary btn-block" style="margin-top: 1rem;">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let html5QrCode;
+        let scannerActive = false;
+
+        // Show token method modal
+        document.getElementById('take-token-btn').addEventListener('click', () => {
+            document.getElementById('token-modal').classList.add('active');
+        });
+
+        // Close modals
+        function closeModal() {
+            document.getElementById('token-modal').classList.remove('active');
+        }
+
+        function closeQRMethodModal() {
+            document.getElementById('qr-method-modal').classList.remove('active');
+        }
+
+        // Open QR method selection
+        document.getElementById('scan-qr-btn').addEventListener('click', () => {
+            closeModal();
+            document.getElementById('qr-method-modal').classList.add('active');
+        });
+
+        // Camera scan
+        document.getElementById('camera-scan-btn').addEventListener('click', () => {
+            closeQRMethodModal();
+            openCameraScanner();
+        });
+
+        // Gallery scan
+        document.getElementById('gallery-scan-btn').addEventListener('click', () => {
+            closeQRMethodModal();
+            openGalleryScanner();
+        });
+
+        // Open camera scanner
+        function openCameraScanner() {
+            document.getElementById('scanner-title').textContent = 'Scan with Camera';
+            document.getElementById('scanner-subtitle').textContent = 'Point your camera at the QR code';
+            document.getElementById('qr-scanner-modal').classList.add('active');
+            startCameraScanner();
+        }
+
+        // Open gallery scanner
+        function openGalleryScanner() {
+            const fileInput = document.getElementById('qr-file-input');
+            fileInput.click();
+
+            fileInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    html5QrCode = new Html5Qrcode("qr-reader");
+                    html5QrCode.scanFile(file, true)
+                        .then(decodedText => {
+                            handleQRSuccess(decodedText);
+                        })
+                        .catch(err => {
+                            alert('Could not read QR code from image. Please try again with a clearer image.');
+                            console.error(err);
+                        });
+                }
+            };
+        }
+
+        // Start camera scanner
+        function startCameraScanner() {
+            if (scannerActive) return;
+
+            html5QrCode = new Html5Qrcode("qr-reader");
+            scannerActive = true;
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                (decodedText) => {
+                    handleQRSuccess(decodedText);
+                }
+            ).catch(err => {
+                console.error('Camera error:', err);
+                scannerActive = false;
+                alert('Failed to access camera. Please check permissions or try uploading from gallery.');
+                closeScanner();
+            });
+        }
+
+        // Handle successful QR scan
+        function handleQRSuccess(decodedText) {
+            console.log(`QR Code detected: ${decodedText}`);
+
+            if (scannerActive && html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    scannerActive = false;
+                    processQRData(decodedText);
+                }).catch(err => {
+                    scannerActive = false;
+                    processQRData(decodedText);
+                });
+            } else {
+                processQRData(decodedText);
+            }
+        }
+
+        // Process QR data
+        function processQRData(decodedText) {
+            try {
+                const qrData = parseQRData(decodedText);
+
+                // Store QR data
+                localStorage.setItem('qrScanned', 'true');
+                localStorage.setItem('qrData', JSON.stringify(qrData));
+
+                // Redirect to registration
+                window.location.href = 'registration.html';
+            } catch (error) {
+                alert('Invalid QR Code format. Please scan the official SmartSeva QR code.');
+                closeScanner();
+            }
+        }
+
+        // Parse QR Code data
+        function parseQRData(qrText) {
+            // Try JSON format first
+            try {
+                return JSON.parse(qrText);
+            } catch (e) {
+                // Try pipe-delimited format: "LocationName|Dept1,Dept2,Dept3"
+                if (qrText.includes('|')) {
+                    const parts = qrText.split('|');
+                    return {
+                        locationName: parts[0],
+                        departments: parts[1] ? parts[1].split(',').map(d => d.trim()) : []
+                    };
+                }
+
+                // Default: treat as location name only
+                return {
+                    locationName: qrText,
+                    departments: ['General Service', 'Billing', 'Information']
+                };
+            }
+        }
+
+        // Close Scanner
+        function closeScanner() {
+            if (html5QrCode && scannerActive) {
+                html5QrCode.stop().then(() => {
+                    scannerActive = false;
+                    document.getElementById('qr-scanner-modal').classList.remove('active');
+                }).catch(err => {
+                    console.error('Stop error:', err);
+                    scannerActive = false;
+                    document.getElementById('qr-scanner-modal').classList.remove('active');
+                });
+            } else {
+                document.getElementById('qr-scanner-modal').classList.remove('active');
+            }
+        }
+    </script>
+
+</body>
+
+</html>

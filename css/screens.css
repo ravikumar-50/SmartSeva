@@ -1,0 +1,294 @@
+/* ============================================
+   LineLess Screen-Specific Layouts
+   ============================================ */
+
+/* ============================================
+   Welcome Screen
+   ============================================ */
+
+#welcome-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-lg);
+}
+
+.welcome-header {
+    margin-bottom: var(--space-xl);
+}
+
+.welcome-location {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.welcome-subtitle {
+    font-size: var(--font-size-md);
+    color: var(--color-text-secondary);
+}
+
+/* QR Confirmation Badge */
+.qr-confirmation {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(47, 128, 237, 0.1);
+    border: 1px solid rgba(47, 128, 237, 0.3);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-primary);
+    max-width: 100%;
+    text-align: left;
+}
+
+.qr-icon {
+    flex-shrink: 0;
+    color: var(--color-primary);
+}
+
+.welcome-hero {
+    max-width: 400px;
+    width: 100%;
+    margin: var(--space-xl) auto;
+}
+
+.welcome-hero img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+}
+
+.welcome-actions {
+    width: 100%;
+    max-width: 400px;
+}
+
+@media (min-width: 1024px) {
+    #welcome-screen {
+        flex-direction: row;
+        text-align: left;
+        gap: var(--space-3xl);
+    }
+
+    .welcome-content {
+        flex: 1;
+    }
+
+    .welcome-hero {
+        flex: 1;
+        max-width: 500px;
+    }
+
+    .welcome-actions {
+        max-width: 100%;
+    }
+}
+
+/* ============================================
+   Registration Screen
+   ============================================ */
+
+#registration-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-lg);
+}
+
+.registration-container {
+    width: 100%;
+    max-width: 500px;
+}
+
+.registration-header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.registration-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-sm);
+}
+
+.registration-subtitle {
+    font-size: var(--font-size-md);
+    color: var(--color-text-secondary);
+}
+
+/* ============================================
+   Token Status Screen (Main)
+   ============================================ */
+
+#status-screen {
+    padding: var(--space-lg);
+}
+
+.status-container {
+    max-width: var(--container-lg);
+    margin: 0 auto;
+}
+
+.status-header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: var(--font-size-md);
+    margin-bottom: var(--space-md);
+    transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+    color: var(--color-primary-dark);
+}
+
+/* Grid layout for status cards */
+.status-grid {
+    display: grid;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+    .status-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Status Action Buttons */
+.status-actions {
+    display: grid;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+}
+
+@media (min-width: 768px) {
+    .status-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ============================================
+   Live Queue Screen
+   ============================================ */
+
+#queue-screen {
+    padding: var(--space-lg);
+}
+
+.queue-container {
+    max-width: var(--container-lg);
+    margin: 0 auto;
+}
+
+.queue-header {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.queue-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-sm);
+}
+
+.queue-subtitle {
+    font-size: var(--font-size-md);
+    color: var(--color-text-secondary);
+}
+
+/* Large Display Mode */
+@media (min-width: 1440px) {
+    .queue-title {
+        font-size: var(--font-size-4xl);
+    }
+
+    .queue-list {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+}
+
+/* ============================================
+   Help Screen
+   ============================================ */
+
+#help-screen {
+    padding: var(--space-lg);
+}
+
+.help-container {
+    max-width: var(--container-xl);
+    margin: 0 auto;
+}
+
+.help-header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+}
+
+.help-title {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-sm);
+}
+
+.help-description {
+    font-size: var(--font-size-md);
+    color: var(--color-text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.help-footer {
+    text-align: center;
+    margin-top: var(--space-2xl);
+}
+
+/* ============================================
+   Department Badge
+   ============================================ */
+
+.department-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-md);
+    background: rgba(47, 128, 237, 0.1);
+    color: var(--color-primary);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+/* Tablet */
+@media (min-width: 768px) {
+    .screen {
+        padding: var(--space-xl) var(--space-lg);
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .screen {
+        padding: var(--space-2xl) var(--space-xl);
+    }
+}

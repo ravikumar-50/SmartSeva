@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSeva - Your Token Status</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/screens.css">
+</head>
+
+<body>
+
+    <!-- Token Status Screen -->
+    <section id="status-screen" class="screen active">
+        <div class="status-container">
+            <div class="status-header">
+                <a href="index.html" class="back-link">
+                    ← Back to home
+                </a>
+                <h2 class="text-2xl font-bold text-center">Your Token Status</h2>
+            </div>
+
+            <!-- Token Number Card (Highlighted) -->
+            <div class="card card-highlight mb-lg">
+                <div class="token-display">
+                    <div class="token-label">
+                        🎟️ Your Token Number
+                    </div>
+                    <div class="token-number" id="token-number">A-42</div>
+                    <div class="department-badge mt-md">
+                        <span>🏥</span>
+                        <span id="token-department">General OP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Queue Info Grid -->
+            <div class="status-grid card-grid-3 mb-lg">
+                <div class="card">
+                    <div class="queue-info">
+                        <div class="queue-info-label">Now Serving</div>
+                        <div class="queue-info-value" id="now-serving">A-36</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="queue-info">
+                        <div class="queue-info-label">People Ahead</div>
+                        <div class="queue-info-value">
+                            <span id="people-ahead">6</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="queue-info">
+                        <div class="queue-info-label">Estimated Wait</div>
+                        <div class="queue-info-value">
+                            <span id="wait-time">18</span>
+                            <span class="queue-info-unit">mins</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="card mb-lg">
+                <div class="progress-container">
+                    <div class="progress-label">
+                        <span>Queue Progress</span>
+                        <span id="progress-percentage">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Banner -->
+            <div id="status-banner" class="status-banner status-banner-success">
+                Relax, you still have time. We'll notify you when your turn is near.
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="status-actions">
+                <button id="refresh-status-btn" class="btn btn-primary btn-lg">
+                    🔄 Refresh Status
+                </button>
+                <a href="help.html" class="btn btn-secondary btn-lg">
+                    ℹ️ Help
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/queue-manager.js"></script>
+    <script src="js/notifications.js"></script>
+    <script>
+        // Initialize notification system
+        notificationManager.init();
+
+        // Load token data from localStorage
+        const tokenData = JSON.parse(localStorage.getItem('currentToken') || 'null');
+        const queueData = JSON.parse(localStorage.getItem('queueManager') || 'null');
+
+        if (!tokenData) {
+            // No token found, redirect to home
+            notificationManager.showError('No token found. Please generate a token first.');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        } else {
+            // Display token information
+            document.getElementById('token-number').textContent = tokenData.number;
+            document.getElementById('token-department').textContent = tokenData.department;
+
+            // Set up queue manager with stored data
+            if (queueData) {
+                queueManager.currentServing = queueData.currentServing;
+                queueManager.currentToken = tokenData;
+            }
+
+            // Function to update queue info
+            function updateQueueInfo() {
+                const nowServing = queueManager.getCurrentServing();
+                const peopleAhead = queueManager.getPeopleAhead();
+                const waitTime = queueManager.getEstimatedWaitTime();
+                const progress = queueManager.getProgressPercentage();
+                const statusMessage = queueManager.getStatusMessage();
+
+                document.getElementById('now-serving').textContent = nowServing;
+                document.getElementById('people-ahead').textContent = peopleAhead;
+                document.getElementById('wait-time').textContent = waitTime;
+                document.getElementById('progress-fill').style.width = progress + '%';
+                document.getElementById('progress-percentage').textContent = Math.round(progress) + '%';
+
+                // Update status banner
+                const banner = document.getElementById('status-banner');
+                banner.textContent = statusMessage.text;
+                banner.className = 'status-banner';
+                if (statusMessage.type === 'relax') {
+                    banner.classList.add('status-banner-success');
+                } else if (statusMessage.type === 'soon') {
+                    banner.classList.add('status-banner-warning');
+                    // Show warning notification
+                    notificationManager.showQueueStatus('soon', peopleAhead);
+                } else if (statusMessage.type === 'now') {
+                    banner.classList.add('status-banner-danger');
+                    // Show urgent notification
+                    notificationManager.showQueueStatus('now', peopleAhead);
+                } else {
+                    banner.classList.add('status-banner-danger');
+                }
+
+                // Update localStorage
+                localStorage.setItem('queueManager', JSON.stringify({
+                    currentServing: queueManager.currentServing,
+                    tokenPrefix: queueManager.tokenPrefix
+                }));
+            }
+
+            // Initial update
+            updateQueueInfo();
+
+            // Show welcome notification
+            setTimeout(() => {
+                notificationManager.showInfo('Your token has been generated! Queue updates automatically.');
+            }, 500);
+
+            // Auto-refresh every 5 seconds
+            const refreshInterval = setInterval(() => {
+                queueManager.advanceQueue();
+                updateQueueInfo();
+            }, 5000);
+
+            // Refresh button
+            document.getElementById('refresh-status-btn').addEventListener('click', () => {
+                updateQueueInfo();
+                notificationManager.showInfo('✓ Status refreshed successfully!');
+            });
+        }
+    </script>
+
+</body>
+
+</html>

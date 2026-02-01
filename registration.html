@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSeva - Get Your Token</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/screens.css">
+
+    <style>
+        .otp-section {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border: 1px solid #2F80ED;
+        }
+
+        .otp-section.active {
+            display: block;
+        }
+
+        .otp-input-group {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid #CBD5E0;
+            border-radius: 8px;
+        }
+
+        .otp-input:focus {
+            border-color: #2F80ED;
+            outline: none;
+        }
+
+        .otp-timer {
+            text-align: center;
+            color: #7F8C8D;
+            margin-top: 0.5rem;
+        }
+
+        .resend-otp {
+            display: inline-block;
+            color: #2F80ED;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .resend-otp.disabled {
+            color: #CBD5E0;
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        .mobile-verified {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            color: #27AE60;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .mobile-verified.active {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+
+    <section id="registration-screen" class="screen active">
+        <div class="registration-container">
+            <div class="registration-header">
+                <h2 class="registration-title">Get Your Digital Token</h2>
+                <p class="registration-subtitle" id="scan-status">Fill in your details to generate a token</p>
+                <p id="location-name" style="color: #2F80ED; font-weight: 600; margin-top: 0.5rem;"></p>
+            </div>
+
+            <div class="card card-lg">
+                <form id="registration-form">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" id="name" class="form-input" placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mobile" class="form-label">Mobile Number</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="tel" id="mobile" class="form-input" placeholder="Enter 10-digit mobile number"
+                                pattern="[0-9]{10}" maxlength="10" required style="flex: 1;">
+                            <button type="button" id="send-otp-btn" class="btn btn-primary" style="min-width: 120px;">
+                                Send OTP
+                            </button>
+                        </div>
+                        <small class="form-helper">OTP verification required to prevent misuse</small>
+                        <div class="mobile-verified" id="mobile-verified">
+                            ✓ Mobile verified successfully
+                        </div>
+
+                        <!-- OTP Section -->
+                        <div class="otp-section" id="otp-section">
+                            <p style="text-align: center; margin-bottom: 0.5rem; font-weight: 600;">Enter 6-Digit OTP
+                            </p>
+                            <p style="text-align: center; margin-bottom: 1rem; font-size: 0.9rem; color: #7F8C8D;">
+                                OTP sent to <span id="otp-mobile">XXXXXXXXXX</span>
+                            </p>
+                            <div class="otp-input-group">
+                                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                                <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                            </div>
+                            <div class="otp-timer">
+                                <span id="otp-timer-text">Resend OTP in <strong id="timer">30</strong>s</span>
+                                <span class="resend-otp disabled" id="resend-otp">Resend OTP</span>
+                            </div>
+                            <button type="button" id="verify-otp-btn" class="btn btn-success btn-block mt-md">
+                                Verify OTP
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="department" class="form-label">Department / Service</label>
+                        <select id="department" class="form-select" required>
+                            <option value="">Select Department</option>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <button type="submit" id="generate-token-btn" class="btn btn-success btn-lg btn-block mt-lg"
+                        disabled>
+                        🟢 Generate Token
+                    </button>
+                    <small class="form-helper" style="text-align: center; display: block; margin-top: 0.5rem;">
+                        *Please verify your mobile number first
+                    </small>
+                </form>
+            </div>
+
+            <div class="text-center mt-md">
+                <a href="index.html" class="back-link">
+                    ← Back to home
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="js/queue-manager.js"></script>
+    <script src="js/notifications.js"></script>
+    <script>
+        // Initialize notifications
+        notificationManager.init();
+
+        // OTP State
+        let generatedOTP = '';
+        let mobileVerified = false;
+        let otpTimer = null;
+        let timerSeconds = 30;
+
+        // Default departments (generic)
+        const defaultDepartments = [
+            'Hospital - General',
+            'Hospital - Emergency',
+            'Hospital - Outpatient',
+            'Bank - Accounts',
+            'Bank - Loans',
+            'Bank - Cash Counter',
+            'Government - Registration',
+            'Government - Certificates',
+            'Government - Licensing',
+            'Service Center - General Query',
+            'Service Center - Support',
+            'Other Services'
+        ];
+
+        let locationName = 'SmartSeva';
+        let availableDepartments = [...defaultDepartments];
+
+        // Load QR scan data if available
+        const qrScanned = localStorage.getItem('qrScanned');
+        const qrDataStr = localStorage.getItem('qrData');
+
+        if (qrScanned === 'true' && qrDataStr) {
+            try {
+                const qrData = JSON.parse(qrDataStr);
+
+                if (qrData.locationName) {
+                    locationName = qrData.locationName;
+                    document.getElementById('location-name').textContent = `📍 ${locationName}`;
+                }
+
+                if (qrData.departments && qrData.departments.length > 0) {
+                    availableDepartments = qrData.departments;
+                }
+
+                document.getElementById('scan-status').innerHTML = '✅ <strong>QR Code Scanned Successfully!</strong> Complete your details below.';
+                document.getElementById('scan-status').style.color = '#27AE60';
+                localStorage.removeItem('qrScanned');
+            } catch (error) {
+                console.error('Error parsing QR data:', error);
+            }
+        }
+
+        // Populate department dropdown
+        const departmentSelect = document.getElementById('department');
+        departmentSelect.innerHTML = '<option value="">Select Department</option>';
+        availableDepartments.forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept;
+            option.textContent = dept;
+            departmentSelect.appendChild(option);
+        });
+
+        // Send OTP
+        document.getElementById('send-otp-btn').addEventListener('click', function () {
+            const mobile = document.getElementById('mobile').value.trim();
+
+            if (mobile.length !== 10 || !/^[0-9]{10}$/.test(mobile)) {
+                notificationManager.showError('Please enter a valid 10-digit mobile number');
+                return;
+            }
+
+            // Generate random 6-digit OTP
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            console.log('Generated OTP:', generatedOTP); // For testing - in production, send via SMS API
+
+            // Show OTP section
+            document.getElementById('otp-section').classList.add('active');
+            document.getElementById('otp-mobile').textContent = mobile.replace(/(\d{5})(\d{5})/, '$1*****');
+            document.getElementById('send-otp-btn').disabled = true;
+            document.getElementById('mobile').disabled = true;
+
+            // Start timer
+            startOTPTimer();
+
+            // Show notification
+            notificationManager.showInfo(`OTP sent to ${mobile}. Please check your SMS. (For testing: ${generatedOTP})`);
+
+            // Focus first OTP input
+            document.querySelector('.otp-input').focus();
+        });
+
+        // OTP Input handling
+        const otpInputs = document.querySelectorAll('.otp-input');
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', function (e) {
+                if (this.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Verify OTP
+        document.getElementById('verify-otp-btn').addEventListener('click', function () {
+            const enteredOTP = Array.from(otpInputs).map(input => input.value).join('');
+
+            if (enteredOTP.length !== 6) {
+                notificationManager.showError('Please enter complete 6-digit OTP');
+                return;
+            }
+
+            if (enteredOTP === generatedOTP) {
+                mobileVerified = true;
+                document.getElementById('otp-section').classList.remove('active');
+                document.getElementById('mobile-verified').classList.add('active');
+                document.getElementById('generate-token-btn').disabled = false;
+                clearInterval(otpTimer);
+                notificationManager.showSuccess('Mobile number verified successfully!');
+            } else {
+                notificationManager.showError('Invalid OTP. Please try again.');
+                otpInputs.forEach(input => input.value = '');
+                otpInputs[0].focus();
+            }
+        });
+
+        // Resend OTP
+        document.getElementById('resend-otp').addEventListener('click', function () {
+            if (!this.classList.contains('disabled')) {
+                // Resend logic (same as send OTP)
+                const mobile = document.getElementById('mobile').value.trim();
+                generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                console.log('Resent OTP:', generatedOTP);
+
+                timerSeconds = 30;
+                startOTPTimer();
+                notificationManager.showInfo(`New OTP sent to ${mobile}. (For testing: ${generatedOTP})`);
+                otpInputs.forEach(input => input.value = '');
+                otpInputs[0].focus();
+            }
+        });
+
+        // Start OTP timer
+        function startOTPTimer() {
+            const resendBtn = document.getElementById('resend-otp');
+            resendBtn.classList.add('disabled');
+            document.getElementById('otp-timer-text').style.display = 'inline';
+
+            otpTimer = setInterval(() => {
+                timerSeconds--;
+                document.getElementById('timer').textContent = timerSeconds;
+
+                if (timerSeconds <= 0) {
+                    clearInterval(otpTimer);
+                    resendBtn.classList.remove('disabled');
+                    document.getElementById('otp-timer-text').style.display = 'none';
+                    timerSeconds = 30;
+                }
+            }, 1000);
+        }
+
+        // Form submission
+        document.getElementById('registration-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            if (!mobileVerified) {
+                notificationManager.showError('Please verify your mobile number first');
+                return;
+            }
+
+            const name = document.getElementById('name').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const department = document.getElementById('department').value;
+
+            if (!name || !mobile || !department) {
+                notificationManager.showError('Please fill in all fields');
+                return;
+            }
+
+            // Generate token
+            const token = queueManager.generateToken(name, mobile, department);
+            notificationManager.showTokenGenerated(token.number);
+
+            // Store data
+            localStorage.setItem('currentToken', JSON.stringify(token));
+            localStorage.setItem('locationName', locationName);
+            localStorage.setItem('queueManager', JSON.stringify({
+                currentServing: queueManager.getCurrentServing(),
+                tokenPrefix: queueManager.tokenPrefix
+            }));
+
+            // Redirect
+            setTimeout(() => {
+                window.location.href = 'status.html';
+            }, 1000);
+        });
+    </script>
+
+</body>
+
+</html>
